@@ -29,28 +29,29 @@ int main(int argc, char** argv) {
 	al_install_keyboard();
 	al_install_mouse();
 
-	ALLEGRO_MOUSE_STATE mouse;
+	ALLEGRO_TIMER* timer = al_create_timer(1.0/60);//FPS
 	ALLEGRO_KEYBOARD_STATE keyb;
 	ALLEGRO_EVENT_QUEUE* queue = al_create_event_queue();
 	ALLEGRO_EVENT event;
 	ALLEGRO_DISPLAY* window = al_create_display(1920,1080);
 	al_set_window_title(window, "Game of Life Conoway Edition");
 	al_get_keyboard_state(&keyb);//set state to false(otherwise it will instantly close)
+	al_register_event_source(queue, al_get_mouse_event_source());
+	al_register_event_source(queue, al_get_display_event_source(window));
+	al_register_event_source(queue, al_get_timer_event_source(timer));
 
 	//----Main loop of the game----
 
 	while (!al_key_down(&keyb, ALLEGRO_KEY_ESCAPE)) {
 		al_get_keyboard_state(&keyb);
 		al_clear_to_color(al_map_rgb(0,0,0));
-		al_get_mouse_state(&mouse);
 		al_get_next_event(queue, &event);
 
 		if (al_key_down(&keyb, ALLEGRO_KEY_SPACE))
 			isStarted = true; //start
 		
-		if (al_mouse_button_down(&mouse, 1) && !isStarted && (event.type == ALLEGRO_EVENT_MOUSE_ENTER_DISPLAY || event.type == ALLEGRO_EVENT_MOUSE_AXES)) { //prevent mouse from interupiting
-			state[mouse.x][mouse.y] = !state[mouse.x][mouse.y];
-			std::cout << "Done\n";
+		if (!isStarted && event.type == ALLEGRO_EVENT_MOUSE_BUTTON_DOWN && event.mouse.button == 1) { 
+			state[event.mouse.x/2][event.mouse.y/2] = true;
 		}
 
 		setState(change,state);
